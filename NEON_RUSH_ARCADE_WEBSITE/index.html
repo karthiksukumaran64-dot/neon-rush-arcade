@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#090719">
+<meta name="description" content="NEON RUSH: PIXEL OVERDRIVE — a survival arcade game from Odd Bit Studio.">
+<title>NEON RUSH ARCADE | Odd Bit Studio</title>
+<style>
+:root{--bg:#080615;--panel:#120d29;--cyan:#46f6ff;--pink:#ff4bd8;--purple:#9b68ff;--muted:#aaa2c7}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(ellipse at 50% -10%,#29145a 0,#100a27 38%,var(--bg) 75%);color:#fff;font-family:Arial,Helvetica,sans-serif;min-height:100vh}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.2;background-image:linear-gradient(rgba(70,246,255,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(70,246,255,.08) 1px,transparent 1px);background-size:38px 38px;mask-image:linear-gradient(to bottom,black,transparent 75%)}
+.wrap{width:min(1100px,92vw);margin:auto;position:relative}.topbar{height:76px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #ffffff18}
+.brand{font-weight:1000;letter-spacing:3px;font-size:18px;text-shadow:0 0 14px var(--cyan)}.brand span{color:var(--cyan)}nav{display:flex;gap:22px}nav a{color:#d7d1ed;text-decoration:none;font-size:13px;font-weight:700}nav a:hover{color:var(--cyan)}
+.hero{text-align:center;padding:78px 0 54px}.eyebrow{color:var(--cyan);font-size:11px;letter-spacing:4px;font-weight:800}.hero h1{font-size:clamp(42px,9vw,88px);line-height:.95;margin:18px 0 12px;font-weight:1000;letter-spacing:-3px;text-shadow:0 0 12px #46f6ff88,0 0 34px #9b68ff77}.hero h1 em{font-style:normal;color:var(--pink);text-shadow:0 0 18px #ff4bd899}.tagline{color:#c6bfdc;font-size:15px;letter-spacing:1.4px}.hero p{max-width:570px;margin:18px auto 28px;color:var(--muted);line-height:1.6;font-size:14px}
+.btn{display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--cyan);background:linear-gradient(110deg,#13cbdc,#7650d9);color:white;text-decoration:none;font-weight:1000;letter-spacing:2px;padding:15px 30px;min-width:180px;clip-path:polygon(8% 0,100% 0,100% 78%,92% 100%,0 100%,0 22%);box-shadow:0 0 24px #46f6ff55;cursor:pointer}.btn:hover{filter:brightness(1.18);transform:translateY(-1px)}.subbtn{display:inline-block;color:#c9c0e5;margin-left:16px;font-size:12px;text-decoration:none}
+.section{padding:30px 0 64px}.section-head{display:flex;align-items:end;justify-content:space-between;gap:16px;margin-bottom:18px}.section h2{margin:0;font-size:23px;letter-spacing:2px}.section h2 span{color:var(--cyan)}.hint{color:var(--muted);font-size:12px}
+.game-shell{background:#0b0819;border:1px solid #46f6ff55;border-radius:14px;padding:12px;box-shadow:0 0 36px #5b39ad33}.game-frame-wrap{width:100%;display:flex;justify-content:center;background:radial-gradient(ellipse,#20134a,#070511 72%);border-radius:9px;padding:16px}.game-frame{border:1px solid #6e4dba;border-radius:8px;width:min(100%,420px);height:min(780px, min(177.78vw, 78vh));min-height:520px;background:#090719}
+.game-note{text-align:center;color:#9f97bb;font-size:11px;padding:12px 4px 2px;line-height:1.5}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.card{background:linear-gradient(145deg,#17102f,#0e0a20);border:1px solid #ffffff1c;border-radius:12px;padding:20px}.card strong{display:block;color:var(--cyan);font-size:12px;letter-spacing:2px;margin-bottom:8px}.card p{margin:0;color:#bcb4d4;font-size:13px;line-height:1.5}
+.leaderboard{display:grid;grid-template-columns:1fr 1fr;gap:14px}.scorebox{background:#130d29;border:1px solid #9b68ff55;border-radius:12px;padding:22px}.scorebox .number{font-size:36px;font-weight:1000;color:var(--cyan);text-shadow:0 0 16px #46f6ff66}.scorebox small{color:var(--muted);letter-spacing:2px}.coming{border:1px dashed #ff4bd877;background:#170c27;border-radius:12px;padding:22px;color:#c9bddc;font-size:13px;line-height:1.6}.coming b{color:var(--pink);letter-spacing:1px}
+footer{border-top:1px solid #ffffff18;padding:26px 0 38px;color:#8981a7;font-size:11px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+@media(max-width:650px){.topbar{height:64px}nav{gap:12px}nav a{font-size:11px}.brand{font-size:14px;letter-spacing:2px}.hero{padding:58px 0 38px}.hero p{font-size:13px}.subbtn{display:block;margin:17px 0 0}.grid{grid-template-columns:1fr}.leaderboard{grid-template-columns:1fr}.game-shell{padding:6px}.game-frame-wrap{padding:5px}.game-frame{width:min(100%,420px);height:min(177.78vw,760px);min-height:480px}.section{padding-bottom:45px}.section-head{align-items:start;flex-direction:column}}
+</style>
+</head>
+<body>
+<header class="wrap topbar">
+  <div class="brand">ODD BIT <span>STUDIO</span></div>
+  <nav><a href="#play">PLAY</a><a href="#leaderboard">LEADERBOARD</a><a href="#about">ABOUT</a></nav>
+</header>
+<main>
+<section class="wrap hero">
+  <div class="eyebrow">ODD BIT STUDIO PRESENTS</div>
+  <h1>NEON <em>RUSH</em></h1>
+  <div class="tagline">PIXEL OVERDRIVE // SURVIVE THE NEON</div>
+  <p>Dodge the chaos. Collect energy. Escape the bosses. How long can you survive the overdrive?</p>
+  <a class="btn" href="#play">▶ PLAY NOW</a>
+  <a class="subbtn" href="#leaderboard">VIEW HIGH SCORES ↓</a>
+</section>
+<section id="play" class="wrap section">
+  <div class="section-head"><h2><span>01 //</span> ARCADE</h2><div class="hint">Your game runs right here — no download required.</div></div>
+  <div class="game-shell">
+    <div class="game-frame-wrap"><iframe id="gameFrame" class="game-frame" src="game.html" title="NEON RUSH game" allow="autoplay; fullscreen" loading="eager"></iframe></div>
+    <div class="game-note">MOBILE: use the on-screen controls or tap and drag. DESKTOP: use the game controls shown in-game.</div>
+  </div>
+</section>
+<section id="leaderboard" class="wrap section">
+  <div class="section-head"><h2><span>02 //</span> LEADERBOARD</h2><div class="hint">Personal record on this device</div></div>
+  <div class="leaderboard">
+    <div class="scorebox"><small>YOUR LOCAL BEST</small><div class="number" id="localBest">0000</div><small>Saved in this browser</small></div>
+    <div class="coming"><b>GLOBAL LEADERBOARD // COMING NEXT</b><br>Online rankings need a shared score database. We're building the playable arcade first; global player rankings will be connected in the next step.</div>
+  </div>
+</section>
+<section id="about" class="wrap section">
+  <div class="section-head"><h2><span>03 //</span> THE MISSION</h2></div>
+  <div class="grid">
+    <div class="card"><strong>SURVIVE</strong><p>Stay alive through endless neon hazards and escalating challenges.</p></div>
+    <div class="card"><strong>COLLECT</strong><p>Gather energy, crystals and power-ups to push your score higher.</p></div>
+    <div class="card"><strong>ESCAPE</strong><p>Boss encounters are survival challenges. Evade and outlast them.</p></div>
+  </div>
+</section>
+</main>
+<footer class="wrap"><span>© <span id="year"></span> ODD BIT STUDIO</span><span>SMALL IDEAS. STRANGE WORLDS. GREAT GAMES.</span></footer>
+<script>
+document.getElementById("year").textContent=new Date().getFullYear();
+const frame=document.getElementById("gameFrame");
+function updateBest(){
+  try{
+    const value=frame.contentWindow.localStorage.getItem("neon_best");
+    const score=value===null?0:JSON.parse(value);
+    document.getElementById("localBest").textContent=String(Number(score)||0).padStart(4,"0");
+  }catch(e){}
+}
+frame.addEventListener("load",()=>{updateBest();setInterval(updateBest,1500)});
+</script>
+</body></html>

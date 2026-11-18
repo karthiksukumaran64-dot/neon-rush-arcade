@@ -1,0 +1,1907 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#090719">
+<title>NEON RUSH 2.0 | PIXEL OVERDRIVE</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;background:radial-gradient(ellipse at 50% 15%,#21144b 0%,#090719 68%);color:white;
+ font-family:Arial,sans-serif;
+ height:100dvh;display:flex;
+ justify-content:center;align-items:center;
+ overflow:hidden;touch-action:none;
+}
+#game{
+ width:min(100vw,56.25dvh);
+ height:min(100dvh,177.78vw);
+ position:relative;overflow:hidden;
+ background:#100d2b;border:2px solid #39316b;
+ box-shadow:0 0 0 2px #090719,0 0 28px #392c91, inset 0 0 24px #1a1642;
+}
+canvas{
+ width:100%;height:100%;display:block;
+ image-rendering:pixelated;
+}
+#hud{
+ position:absolute;top:5px;left:12px;right:12px;
+ display:flex;justify-content:space-between;
+ pointer-events:none;text-shadow:2px 2px #090719;
+}
+.brand{font-weight:900;font-size:15px;letter-spacing:2px;color:#43efff}
+.stats{text-align:right;font-size:10px;color:#c5c0e9;line-height:1.7}
+.stats strong{font-size:22px;display:block;color:white}
+#rankProgress{width:142px;margin:2px 0 0 auto;text-align:right;font-size:8px;line-height:1.35;color:#d8d2ff}
+.rankProgressLabel{display:flex;justify-content:space-between;gap:5px;white-space:nowrap}
+.rankTrack{height:5px;margin:3px 0 2px;background:#30284f;border:1px solid #7664b4;border-radius:8px;overflow:hidden}
+#rankFill{height:100%;width:0%;background:linear-gradient(90deg,#43efff,#c45cff);box-shadow:0 0 7px #43efff;transition:width .15s}
+.rankProgressHint{color:#a69acb;font-size:7px}
+#pause{
+ position:absolute;top:12px;left:50%;right:auto;transform:translateX(-50%);
+ width:38px;height:38px;
+ background:#171238;color:white;border:1px solid #6255b5;
+ border-radius:8px;z-index:2;cursor:pointer;box-shadow:0 0 12px #43eaff44;
+}
+#controls{
+ position:absolute;bottom:14px;left:12px;right:12px;
+ display:flex;justify-content:space-between;pointer-events:none;
+}
+.control{
+ pointer-events:auto;width:65px;height:55px;
+ background:#211a50dd;border:2px solid #5145a2;
+ color:#50efff;box-shadow:0 0 14px #43eaff22;font-size:25px;border-radius:10px;
+ touch-action:none;user-select:none;
+}
+#overlay{
+ position:absolute;inset:0;background:#090719ef;
+ display:flex;justify-content:center;align-items:center;
+ z-index:5;padding:20px;overflow-y:auto;
+}
+.panel{text-align:center;width:100%}
+.logo{
+ font-size:34px;font-weight:1000;letter-spacing:3px;
+ color:#44edff;text-shadow:3px 3px #7436ce,0 0 20px #00bfff;
+}
+.subtitle{color:#b59cff;font-size:11px;letter-spacing:4px;margin:10px 0 25px}
+.panel p{font-size:13px;line-height:1.8;color:#c1bbdf}
+.action{
+ width:85%;padding:15px;background:#43eaff;color:#100c2c;
+ font-size:14px;font-weight:900;letter-spacing:2px;
+ border:0;border-bottom:5px solid #1689ad;margin-top:18px;box-shadow:0 0 20px #43eaff44;
+}
+.small{color:#8279ad!important;font-size:10px!important}
+.hidden{display:none!important}
+.menuActions{display:flex;gap:8px;justify-content:center;align-items:center;margin-top:8px}
+.secondary{padding:10px 14px;background:#211a50;color:#bdefff;border:1px solid #5145a2;border-radius:6px;font-size:10px;font-weight:800;letter-spacing:1px}
+.shipGrid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px}.shipCard{background:#100d2b;border:1px solid #5145a2;border-radius:7px;padding:8px 5px;color:#d9d4f5;text-align:center;font:bold 9px monospace;cursor:pointer}.shipCard.selected{border:2px solid #43eaff;box-shadow:0 0 12px #43eaff55;color:#fff}.shipGlyph{display:block;font-size:23px;line-height:1.4;text-shadow:0 0 10px currentColor}.shipCard small{display:block;color:#9d94c7;font-size:8px;margin-top:3px}.menuActions{flex-wrap:wrap}
+.settingsPanel{margin:12px auto 0;padding:12px;background:#171238;border:1px solid #5145a2;border-radius:8px;text-align:left;max-width:280px}
+.settingsPanel label{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:10px;color:#d9d4f5;margin:9px 0}
+.settingsPanel select,.settingsPanel input{max-width:125px;background:#090719;color:#fff;border:1px solid #6255b5;padding:5px;border-radius:4px}
+.settingsPanel input[type=checkbox]{accent-color:#43eaff}
+.resultStats{font-size:10px;line-height:1.8;color:#c9c2e8;margin:10px auto;max-width:260px}
+.victoryNote{max-width:270px;margin:13px auto;padding:12px 13px;background:linear-gradient(145deg,#171238,#21133c);border:1px solid #6b5bd0;border-radius:9px;box-shadow:0 0 18px #563b9b44;text-align:left}
+.victoryNote .noteTitle{font:bold 9px monospace;letter-spacing:2px;color:#65f2ff;text-align:center;margin-bottom:8px}
+.victoryNote p{font-size:10px;line-height:1.65;color:#d4ccef;margin:0;text-align:center}
+.victoryNote .milestones{display:flex;justify-content:center;gap:6px;flex-wrap:wrap;margin-top:10px}
+.victoryNote .milestones span{font:bold 8px monospace;color:#ffe68a;border:1px solid #65533e;border-radius:4px;padding:4px 6px}
+.achievementToast{position:absolute;top:18%;left:50%;transform:translateX(-50%);background:#171238;border:1px solid #ffe66d;color:#ffe66d;padding:7px 10px;font:bold 9px monospace;z-index:4;text-align:center;pointer-events:none}
+
+#toast{
+ position:absolute;top:43%;width:100%;text-align:center;
+ font-weight:bold;color:#ffe66d;font-size:14px;
+ pointer-events:none;text-shadow:2px 2px #090719;
+}
+@media (max-height:560px){#overlay{padding:10px;align-items:flex-start}.logo{font-size:27px}.subtitle{margin:5px 0 12px}.panel p{margin:7px 0}.action{padding:10px;margin-top:8px}}
+button{font-family:inherit;transition:filter .12s,transform .12s}button:active{filter:brightness(1.3);transform:translateY(1px)}
+
+/* Mobile-release title screen: the intro art only appears on the main menu. */
+#overlay.menuSplash{padding:12px 13px;background:radial-gradient(ellipse at 50% 36%,#341968e8 0%,#0b0924f6 63%,#050511 100%);overflow-y:auto;overscroll-behavior:contain}
+#overlay.menuSplash::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.35;background:repeating-linear-gradient(0deg,transparent 0px,transparent 4px,#40dfff12 5px,#40dfff12 6px)}
+#overlay.menuSplash .panel{position:relative;z-index:1;max-width:340px;padding:4px 2px 12px}
+#overlay.menuSplash .logo{font-size:clamp(30px,9.5vw,46px);line-height:.97;letter-spacing:3px;color:#77f7ff;text-shadow:3px 3px 0 #a22ae9,0 0 12px #00eeff,0 0 30px #6235ff;animation:titlePulse 3s ease-in-out infinite}
+#overlay.menuSplash .subtitle{margin:8px 0 6px;color:#ff7ce7;letter-spacing:3px;font-size:10px}
+#overlay.menuSplash #message{margin:5px 0 4px;font-size:10px;line-height:1.5;letter-spacing:1.2px;color:#dcd6ff}
+#overlay.menuSplash .howTo{font-size:9px;line-height:1.65;color:#b9b4d8;margin:7px 0 3px}
+#overlay.menuSplash .action{width:100%;max-width:290px;margin-top:9px;padding:14px 10px;border-radius:5px;background:linear-gradient(180deg,#9affff,#38dff6);box-shadow:0 0 14px #44edff88,0 5px 0 #126a94;animation:startGlow 2s ease-in-out infinite}
+#overlay.menuSplash .secondary{flex:1;min-width:80px;padding:10px 5px;font-size:9px}
+#overlay.menuSplash .menuActions{max-width:310px;margin:11px auto 0}
+#overlay.menuSplash .small{font-size:9px!important}
+.splashScene{display:none}
+#overlay.menuSplash .splashScene{display:block;position:relative;height:clamp(122px,23dvh,185px);max-height:185px;overflow:hidden;margin:5px -4px 4px;border-bottom:1px solid #ae6fff55;background:radial-gradient(ellipse at 50% 70%,#6938a9aa,transparent 62%)}
+.splashScene::before{content:"";position:absolute;inset:0;background-image:radial-gradient(#b4faff 1px,transparent 1px),radial-gradient(#fb8dff 1px,transparent 1px);background-size:38px 42px,61px 47px;background-position:3px 8px,21px 18px;opacity:.7;animation:starDrift 8s linear infinite}
+.splashSun{position:absolute;width:95px;height:95px;left:50%;top:16px;transform:translateX(-50%);border-radius:50%;background:linear-gradient(#ff88d6,#ac4bda 70%,#5c2c9b);box-shadow:0 0 36px #f457e766;opacity:.8}
+.splashBuildings{position:absolute;bottom:0;left:0;width:100%;height:63px;background:linear-gradient(90deg,#17123e 0 9%,transparent 9% 12%,#1d174b 12% 24%,transparent 24% 27%,#15103c 27% 35%,transparent 35% 38%,#20184d 38% 49%,transparent 49% 52%,#151039 52% 64%,transparent 64% 68%,#1b1547 68% 80%,transparent 80% 83%,#1b1442 83%);border-bottom:3px solid #47ebff;box-shadow:0 -5px 20px #ed6df922 inset}
+.splashBuildings::after{content:"";position:absolute;inset:8px 0;background:repeating-linear-gradient(90deg,transparent 0 10px,#6deaff 10px 12px,transparent 12px 18px);opacity:.28}
+.splashShip{position:absolute;width:94px;height:100px;left:50%;top:18px;transform:translateX(-50%);filter:drop-shadow(0 0 10px #46f9ff);animation:shipHover 2.3s ease-in-out infinite}
+.splashShip svg{width:100%;height:100%;image-rendering:pixelated}
+.splashEngine{position:absolute;left:50%;top:111px;transform:translateX(-50%);width:15px;height:29px;background:linear-gradient(#fff,#57faff,#6637ff,transparent);clip-path:polygon(25% 0,75% 0,100% 35%,50% 100%,0 35%);filter:drop-shadow(0 0 8px #43efff);animation:engineFlicker .35s steps(2) infinite}
+.splashEyebrow{display:none}
+#overlay.menuSplash .splashEyebrow{display:block;color:#ffe18e;font:bold 8px monospace;letter-spacing:2px;margin:3px 0 7px}
+@keyframes shipHover{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,-9px)}}
+@keyframes engineFlicker{0%,100%{height:29px}50%{height:20px}}
+@keyframes titlePulse{0%,100%{filter:brightness(1)}50%{filter:brightness(1.24)}}
+@keyframes startGlow{0%,100%{box-shadow:0 0 12px #44edff88,0 5px 0 #126a94}50%{box-shadow:0 0 25px #44edffcc,0 5px 0 #126a94}}
+@keyframes starDrift{to{background-position:3px 50px,21px 65px}}
+@media(max-height:620px){#overlay.menuSplash .splashScene{height:100px}#overlay.menuSplash .panel{padding:2px}#overlay.menuSplash .howTo{margin:3px 0}#overlay.menuSplash .action{padding:10px}#overlay.menuSplash .logo{font-size:30px}#overlay.menuSplash .subtitle{margin:4px 0}#overlay.menuSplash .menuActions{margin-top:6px}}
+@media(prefers-reduced-motion:reduce){#overlay.menuSplash *{animation:none!important}}
+</style>
+</head>
+
+<body>
+<div id="game">
+ <canvas id="screen" width="180" height="320"></canvas>
+
+ <div id="hud">
+  <div>
+   <div class="brand">NEON RUSH</div>
+   <div style="font-size:9px;color:#a69acb">PIXEL OVERDRIVE</div>
+  </div>
+  <div class="stats">
+   SCORE
+   <strong id="score">0000</strong>
+   BEST <span id="best">0000</span>
+   <div id="combo"></div>
+   <div id="rankProgress">
+    <div class="rankProgressLabel"><span id="rankCurrent">D RANK</span><span id="rankNext">NEXT: C · 2,000</span></div>
+    <div class="rankTrack"><div id="rankFill"></div></div>
+    <div class="rankProgressHint" id="rankHint">0 / 2,000 POINTS</div>
+   </div>
+  </div>
+ </div>
+
+ <button id="pause" class="hidden">Ⅱ</button>
+
+ <div id="controls" class="hidden">
+  <button class="control" id="left">◀</button>
+  <button class="control" id="right">▶</button>
+ </div>
+
+ <div id="toast"></div>
+ <div id="achievementToast" class="achievementToast hidden"></div>
+
+ <div id="overlay" class="menuSplash">
+  <div class="panel">
+   <div class="logo" id="heading">NEON<br>RUSH</div>
+   <div class="subtitle">PIXEL OVERDRIVE</div>
+   <div class="splashScene" aria-hidden="true">
+    <div class="splashSun"></div><div class="splashBuildings"></div>
+    <div class="splashShip"><svg viewBox="0 0 64 72" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
+     <path d="M28 4H36V14H42V22H50V36H58V52H46V46H40V60H24V46H18V52H6V36H14V22H22V14H28Z" fill="#0c133e" stroke="#62f4ff" stroke-width="3"/>
+     <path d="M28 14H36V24H42V42H36V54H28V42H22V24H28Z" fill="#7c4bff"/>
+     <path d="M28 20H36V36H28Z" fill="#9afaff"/><path d="M8 40H18V48H8ZM46 40H56V48H46Z" fill="#fa6dff"/>
+     <path d="M28 52H36V63H28Z" fill="#c8fcff"/>
+    </svg></div><div class="splashEngine"></div>
+   </div>
+   <div class="splashEyebrow">✦ FOUR SECTORS · FOUR BOSSES · ONE ESCAPE ✦</div>
+   <p id="message">
+    THE CITY IS FALLING.<br>
+    THE ENERGY IS YOURS.<br>
+    HOW LONG CAN YOU SURVIVE?
+   </p>
+   <p class="howTo">
+    ◀ ▶ MOVE YOUR SHIP<br>
+    DRAG OR TAP TO STEER<br>
+    COLLECT ENERGY<br>
+    DODGE HAZARDS<br>
+    ESCAPE FOUR DEADLY BOSSES
+   </p>
+   <button class="action" id="play">START GAME</button>
+   <div class="menuActions">
+    <button class="secondary" id="hangarToggle">SHIP HANGAR</button>
+    <button class="secondary" id="settingsToggle">SETTINGS</button>
+    <button class="secondary" id="achievementsToggle">ACHIEVEMENTS</button>
+   </div>
+   <div id="hangarPanel" class="settingsPanel hidden"><b>SELECT YOUR SHIP</b><p class="small">Choose a ship before launching. Each ship has a unique pixel-art look; handling and survival stats stay fair.</p><div id="shipGrid" class="shipGrid"></div><p id="shipSelectedNote" class="small">SELECTED: NEON COMET</p></div>
+   <div id="settingsPanel" class="settingsPanel hidden">
+    <label>DIFFICULTY <select id="difficulty"><option value="easy">EASY</option><option value="normal" selected>NORMAL</option><option value="hard">HARD</option><option value="nightmare">NIGHTMARE</option></select></label>
+    <label>CONTROL SENSITIVITY <input id="sensitivity" type="range" min="60" max="160" value="100"></label>
+    <label>SOUND EFFECTS <input id="soundToggle" type="checkbox" checked></label>
+    <label>NEON MUSIC <input id="musicToggle" type="checkbox" checked></label>
+    <label>VIBRATION <input id="vibrationToggle" type="checkbox" checked></label>
+    <p class="small">NEON SYNTHWAVE + ARCADE MUSIC. SETTINGS ARE SAVED AUTOMATICALLY.</p>
+   </div>
+   <div id="achievementPanel" class="settingsPanel hidden"></div>
+   <p class="small">A NEW RUN. A NEW HIGH SCORE.</p>
+  </div>
+ </div>
+</div>
+
+<script>
+"use strict";
+
+// ==================================
+// NEON RUSH - BOSS EDITION
+// ==================================
+
+const canvas=document.getElementById("screen");
+const ctx=canvas.getContext("2d");
+const $=id=>document.getElementById(id);
+
+const W=180,H=320;
+const TEST_INFINITE_LIFE = false; // Release build: normal health and damage
+
+const store={
+ get(k,f){
+  try{
+   const v=localStorage.getItem(k);
+   return v===null?f:JSON.parse(v);
+  }catch{return f}
+ },
+ set(k,v){
+  try{localStorage.setItem(k,JSON.stringify(v))}catch{}
+ }
+};
+
+let best=store.get("neon_best",0);
+const DEFAULT_SETTINGS={difficulty:"normal",sensitivity:100,sound:true,music:true,vibration:true};
+let settings={...DEFAULT_SETTINGS,...(store.get("neon_settings",{})||{})};
+let unlockedAchievements=store.get("neon_achievements",[]);
+let state="menu";
+let score=0,speed=1,elapsed=0,frame=0;
+let combo=0,comboTime=0,shake=0;
+let spawnClock=0,energyClock=0,powerClock=0;
+let lastTime=0,animationId=null;
+
+let obstacles=[],energies=[],powers=[],specials=[],particles=[],stars=[];
+let stats={energy:0,bosses:0,maxCombo:0,hits:0};
+let magnetTimer=0,slowTimer=0,phaseTimer=0,scoreBoostTimer=0,musicClock=0,specialClock=0;
+let bossHitCount=0;
+let hitFlash=0, hitStop=0, environmentClock=0;
+let rain=[];
+
+// BOSS VARIABLES
+let boss=null;
+let bossBullets=[];
+let bossStage=1;
+let bossNextAt=45*60;
+let terror=0;
+let warningFlash=0;
+let heartbeatClock=0;
+
+
+const SHIPS={
+ comet:{name:"NEON COMET",role:"Balanced runner",body:"#28dfff",light:"#a9faff",wing:"#724bdb",flame:"#ff8b38",shape:"classic",glyph:"✦"},
+ phantom:{name:"VOID PHANTOM",role:"Shadow interceptor",body:"#b78cff",light:"#f0ddff",wing:"#5934a8",flame:"#d85bff",shape:"wide",glyph:"◆"},
+ solar:{name:"SOLAR SPEAR",role:"Radiant striker",body:"#ffd34d",light:"#fff4ad",wing:"#d97824",flame:"#ff5a36",shape:"arrow",glyph:"▲"},
+ venom:{name:"VENOM PIXEL",role:"Toxic stealth craft",body:"#70ffad",light:"#d5ffe5",wing:"#16875f",flame:"#baff4d",shape:"stealth",glyph:"⬟"}
+};
+let selectedShip=store.get("neon_selected_ship","comet");
+if(!SHIPS[selectedShip])selectedShip="comet";
+
+$("best").textContent=String(best).padStart(4,"0");
+
+// PLAYER
+const player={
+ x:90,y:267,w:12,h:12,
+ health:100,shields:0,healDelay:0,trail:[],vx:0
+};
+
+const input={
+ left:false,right:false,target:null
+};
+
+// ==================================
+// AUDIO ENGINE
+// ==================================
+
+let audio=null;
+
+function initAudio(){
+ try{
+  audio=audio||new(window.AudioContext||window.webkitAudioContext)();
+  if(audio.state==="suspended")audio.resume();
+ }catch{}
+}
+
+function sound(freq=440,duration=.1,type="square",volume=.035,force=false){
+ if(!audio||(!settings.sound&&!force))return;
+
+ try{
+  const osc=audio.createOscillator();
+  const gain=audio.createGain();
+
+  osc.type=type;
+  osc.frequency.setValueAtTime(freq,audio.currentTime);
+
+  gain.gain.setValueAtTime(volume,audio.currentTime);
+  gain.gain.exponentialRampToValueAtTime(
+   .001,audio.currentTime+duration
+  );
+
+  osc.connect(gain);
+  gain.connect(audio.destination);
+  osc.start();
+  osc.stop(audio.currentTime+duration);
+ }catch{}
+}
+
+function vibrate(pattern=35){
+ if(settings.vibration && navigator.vibrate){
+  try{navigator.vibrate(pattern)}catch{}
+ }
+}
+
+// Procedural neon synthwave + arcade soundtrack.
+// Warm synth bass, pulsing arpeggios and punchy electronic percussion.
+let musicStepIndex=0;
+const CHIP_THEMES=[
+ // Neon City: energetic minor synthwave.
+ {root:220,scale:[0,7,10,7,3,7,12,10,0,7,10,14,12,10,7,3],bass:[0,0,0,7,0,0,10,7]},
+ // Iron Foundry: weighty, mechanical pulse.
+ {root:196,scale:[0,3,7,10,7,5,3,0,0,3,7,12,10,7,5,3],bass:[0,0,7,0,0,5,7,0]},
+ // Tempest Wasteland: brighter, rising momentum.
+ {root:247,scale:[0,4,7,11,12,11,7,4,2,7,11,14,16,14,11,7],bass:[0,7,4,7,0,7,11,7]},
+ // Abyssal Ruins: ominous, deep minor pulse.
+ {root:174.61,scale:[0,3,6,10,12,10,6,3,0,6,10,13,12,10,6,3],bass:[0,0,6,0,3,0,10,6]}
+];
+function chipTone(freq,duration,wave="square",volume=.018){
+ if(!audio||!settings.music)return;
+ try{
+  const now=audio.currentTime;
+  const osc=audio.createOscillator();
+  const gain=audio.createGain();
+  osc.type=wave;
+  osc.frequency.setValueAtTime(freq,now);
+  gain.gain.setValueAtTime(.0001,now);
+  gain.gain.linearRampToValueAtTime(volume,now+.008);
+  gain.gain.exponentialRampToValueAtTime(.0001,now+duration);
+  osc.connect(gain);gain.connect(audio.destination);
+  osc.start(now);osc.stop(now+duration+.015);
+ }catch{}
+}
+function synthKick(){
+ if(!audio||!settings.music)return;
+ try{
+  const now=audio.currentTime,osc=audio.createOscillator(),gain=audio.createGain();
+  osc.type="sine";
+  osc.frequency.setValueAtTime(125,now);
+  osc.frequency.exponentialRampToValueAtTime(42,now+.13);
+  gain.gain.setValueAtTime(.085,now);
+  gain.gain.exponentialRampToValueAtTime(.001,now+.15);
+  osc.connect(gain);gain.connect(audio.destination);osc.start(now);osc.stop(now+.16);
+ }catch{}
+}
+function synthSnare(){
+ if(!audio||!settings.music)return;
+ chipTone(185,.07,"triangle",.025);
+ chipTone(1150,.035,"square",.009);
+}
+function musicTick(){
+ if(!audio||!settings.music||state!=="playing")return;
+ const stage=Math.max(1,Math.min(4,boss?boss.stage:bossStage))-1;
+ const theme=CHIP_THEMES[stage];
+ const step=musicStepIndex++%16;
+ const tension=!!(boss&&boss.phase==="active");
+ const warning=!!(boss&&boss.phase==="warning");
+ const pattern=tension?[0,7,10,12,10,7,3,10,0,7,12,15,12,10,7,3]:theme.scale;
+ const root=theme.root*(tension?1.06:warning?1.025:1);
+ const note=pattern[step];
+ // A clear, melodic lead sits above a warm moving bass.
+ chipTone(root*Math.pow(2,note/12)*(step%4===2?2:1),tension?.13:.18,"sawtooth",tension?.014:.011);
+ if(step%2===0){
+  const bass=theme.bass[(step/2)%theme.bass.length];
+  chipTone(root*.5*Math.pow(2,bass/12),.22,"triangle",tension?.035:.027);
+ }
+ // Four-on-the-floor kick, with a snare on the backbeat.
+ if(step%4===0)synthKick();
+ if(step%8===4)synthSnare();
+ // Bright hi-hat-like ticks keep the arcade pace moving.
+ if(step%2===1)chipTone(2600,.018,"square",.0025);
+ if(warning&&step%4===0)chipTone(880,.07,"square",.012);
+}
+function heartbeat(){
+ sound(65,.13,"sine",.07);
+ setTimeout(()=>{
+  if(state==="playing"&&boss&&boss.phase==="active")
+   sound(48,.16,"sine",.06);
+ },180);
+}
+
+function siren(){
+ sound(420,.25,"sawtooth",.06);
+ setTimeout(()=>sound(260,.3,"sawtooth",.06),300);
+ setTimeout(()=>sound(420,.25,"sawtooth",.06),650);
+}
+
+// ==================================
+// BACKGROUND
+// ==================================
+
+function createStars(){
+ stars=[];rain=[];
+ for(let i=0;i<34;i++)rain.push({x:Math.random()*W,y:Math.random()*H,len:3+Math.random()*6,speed:2+Math.random()*3});
+ for(let i=0;i<45;i++){
+  stars.push({
+   x:Math.random()*W,
+   y:Math.random()*H,
+   speed:Math.random()*1.5+.3,
+   size:Math.random()>.8?2:1
+  });
+ }
+}
+
+const LOCATION_NAMES=[
+ "NEON CITY",
+ "IRON FOUNDRY",
+ "TEMPEST WASTELAND",
+ "ABYSSAL RUINS"
+];
+
+function background(dt){
+ const stage=Math.min(4,Math.max(1,bossStage||1));
+ const palettes=[
+  {sky:"#100d2b",build:"#17143d",window:"#39336b",stars:"#7772bc",grid:"#29245a",edge:"#49318c"},
+  {sky:"#17101b",build:"#30202a",window:"#a44b35",stars:"#f2a36b",grid:"#58313b",edge:"#9b4a3e"},
+  {sky:"#061a30",build:"#0b3150",window:"#19a9c2",stars:"#a1f8ff",grid:"#124b70",edge:"#1c91b5"},
+  {sky:"#090512",build:"#1b1026",window:"#6e315f",stars:"#c68ad9",grid:"#382044",edge:"#813b72"}
+ ];
+ const p=palettes[stage-1];
+
+ ctx.fillStyle=p.sky;
+ ctx.fillRect(0,0,W,H);
+
+ // Distinct skyline and landmark silhouettes for each region.
+ if(stage===1){
+  // Original neon city skyline.
+  for(let i=0;i<12;i++){
+   const x=i*17;
+   const height=35+(i*19)%55;
+   ctx.fillStyle=p.build;
+   ctx.fillRect(x,H-height-28,13,height);
+   ctx.fillStyle=p.window;
+   for(let wy=0;wy<height-5;wy+=10)ctx.fillRect(x+4,H-height-22+wy,3,3);
+  }
+ }else if(stage===2){
+  // Iron Foundry: smokestacks, refinery towers and furnace windows.
+  ctx.fillStyle="#241720";
+  for(let i=0;i<8;i++){
+   const x=i*25-2;
+   const h=55+(i*31)%85;
+   ctx.fillRect(x,H-h-20,19,h);
+   ctx.fillRect(x+5,H-h-32,9,13);
+   ctx.fillStyle="#a44b35";
+   for(let wy=H-h+8;wy<H-28;wy+=17)ctx.fillRect(x+6,wy,6,5);
+   ctx.fillStyle="#241720";
+  }
+  ctx.fillStyle="#69333a";
+  ctx.fillRect(0,H-37,W,9);
+  ctx.fillStyle="#d56b42";
+  for(let x=8;x<W;x+=28)ctx.fillRect(x,H-34,10,3);
+ }else if(stage===3){
+  // Tempest Wasteland: jagged crystal spires and storm-energy pylons.
+  ctx.fillStyle="#08263d";
+  for(let i=0;i<9;i++){
+   const x=i*22-5;
+   const h=45+(i*27)%85;
+   ctx.beginPath();
+   ctx.moveTo(x,H-22);
+   ctx.lineTo(x+8,H-h-20);
+   ctx.lineTo(x+17,H-22);
+   ctx.closePath();
+   ctx.fill();
+   ctx.fillStyle="#137b9b";
+   ctx.fillRect(x+7,H-h+4,3,Math.max(8,h-30));
+   ctx.fillStyle="#08263d";
+  }
+  ctx.strokeStyle="#167b9d";
+  ctx.lineWidth=2;
+  for(let i=0;i<3;i++){
+   const yy=70+i*55+Math.sin(frame/18+i)*7;
+   ctx.beginPath();
+   ctx.moveTo(0,yy);
+   ctx.lineTo(28,yy-9);
+   ctx.lineTo(48,yy+5);
+   ctx.lineTo(79,yy-13);
+   ctx.stroke();
+  }
+ }else{
+  // Abyssal Ruins: broken towers, arches and ominous purple monoliths.
+  ctx.fillStyle="#170d22";
+  for(let i=0;i<8;i++){
+   const x=i*25-3;
+   const h=55+(i*37)%90;
+   ctx.fillRect(x,H-h-20,17,h);
+   ctx.fillRect(x-3,H-h-25,23,7);
+   ctx.fillStyle="#52274f";
+   ctx.fillRect(x+5,H-h+13,4,Math.max(12,h-35));
+   ctx.fillStyle="#170d22";
+  }
+  ctx.strokeStyle="#6e315f";
+  ctx.lineWidth=4;
+  ctx.beginPath();
+  ctx.moveTo(20,H-25);ctx.lineTo(20,105);ctx.lineTo(38,82);
+  ctx.moveTo(142,H-25);ctx.lineTo(142,105);ctx.lineTo(160,82);
+  ctx.stroke();
+  ctx.fillStyle="#a64b83";
+  ctx.fillRect(0,H-29,W,4);
+ }
+
+ // Region-specific drifting particles.
+ ctx.fillStyle=p.stars;
+ stars.forEach((s,i)=>{
+  s.y+=s.speed*dt*speed*(stage===3?1.35:1);
+  if(s.y>H){s.y=0;s.x=Math.random()*W}
+  const twinkle=(stage===4&&i%4===0)?2:s.size;
+  ctx.fillRect(Math.floor(s.x),Math.floor(s.y),twinkle,twinkle);
+ });
+
+ // Moving ground grid and side rails adapt to the current region.
+ ctx.strokeStyle=p.grid;
+ ctx.lineWidth=1;
+ for(let y=0;y<H;y+=32){
+  const yy=(y+frame*.9)%H;
+  ctx.beginPath();
+  ctx.moveTo(0,yy);
+  ctx.lineTo(W,yy);
+  ctx.stroke();
+ }
+ ctx.strokeStyle=p.edge;
+ ctx.beginPath();
+ ctx.moveTo(14,0);ctx.lineTo(14,H);
+ ctx.moveTo(166,0);ctx.lineTo(166,H);
+ ctx.stroke();
+
+ // Weather and industrial ambience are tied to the active region.
+ if(stage===2){
+  ctx.globalAlpha=.24;
+  for(let i=0;i<5;i++){
+   const sx=(i*43+frame*.55)%W, sy=(frame*1.7+i*61)%H;
+   ctx.fillStyle=i%2?"#ff9b52":"#ffd36b";
+   ctx.fillRect(sx,sy,2,3);
+  }
+  ctx.globalAlpha=1;
+ }else if(stage===3){
+  ctx.strokeStyle="rgba(108,231,255,.28)";ctx.lineWidth=1;
+  for(let i=0;i<rain.length;i++){
+   const r=rain[i];r.y+=r.speed*dt*1.5;
+   if(r.y>H){r.y=-r.len;r.x=Math.random()*W}
+   ctx.beginPath();ctx.moveTo(r.x,r.y);ctx.lineTo(r.x-2,r.y+r.len);ctx.stroke();
+  }
+  if(Math.floor(frame/170)%5===0&&frame%170<2){ctx.fillStyle="rgba(150,225,255,.10)";ctx.fillRect(0,0,W,H)}
+ }else if(stage===4){
+  ctx.globalAlpha=.2;
+  for(let i=0;i<7;i++){
+   const bx=(i*31+Math.sin(frame/45+i)*9+W)%W;
+   const by=(i*47+frame*.24)%H;
+   ctx.fillStyle="#c58bff";ctx.fillRect(bx,by,2,2);
+  }
+  ctx.globalAlpha=1;
+ }
+
+ // Location label remains visible between the controls.
+ ctx.save();
+ ctx.globalAlpha=.72;
+ ctx.textAlign="center";
+ ctx.font="bold 7px monospace";
+ ctx.fillStyle=p.stars;
+ ctx.fillText(LOCATION_NAMES[stage-1],90,312);
+ ctx.restore();
+}
+
+
+// ==================================
+// PIXEL ART
+// ==================================
+
+
+function pixelShip(x,y){
+ x=Math.floor(x);y=Math.floor(y);
+ const ship=SHIPS[selectedShip]||SHIPS.comet;
+ const flame=5+Math.floor((Math.sin(frame*.7)+1)*2);
+ ctx.shadowBlur=8;ctx.shadowColor=ship.flame;
+ ctx.fillStyle=frame%8<4?"#fff3a1":ship.flame;
+ ctx.fillRect(x-2,y+8,3,flame);
+ ctx.fillRect(x+3,y+9,3,Math.max(3,flame-1));
+ ctx.shadowBlur=0;
+
+ ctx.fillStyle=ship.wing;
+ if(ship.shape==="wide"){
+  ctx.fillRect(x-7,y-1,16,5);ctx.fillRect(x-5,y+3,4,5);ctx.fillRect(x+5,y+3,4,5);
+  ctx.fillRect(x-3,y-8,8,17);
+ }else if(ship.shape==="arrow"){
+  ctx.fillRect(x-5,y+1,4,7);ctx.fillRect(x+7,y+1,4,7);
+  ctx.fillRect(x-2,y-6,6,15);ctx.fillRect(x-6,y+5,14,3);
+ }else if(ship.shape==="stealth"){
+  ctx.fillRect(x-8,y+1,5,6);ctx.fillRect(x+9,y+1,5,6);
+  ctx.fillRect(x-4,y-3,14,12);ctx.fillRect(x-2,y-9,10,18);
+ }else{
+  ctx.fillRect(x-5,y+3,4,3);ctx.fillRect(x+7,y+3,4,3);
+ }
+ ctx.fillStyle=ship.body;
+ if(ship.shape==="wide"){
+  ctx.fillRect(x-2,y-7,10,15);ctx.fillRect(x-6,y-2,18,7);
+ }else if(ship.shape==="arrow"){
+  ctx.fillRect(x+1,y-9,4,17);ctx.fillRect(x-2,y-2,10,8);ctx.fillRect(x,y+5,6,4);
+ }else if(ship.shape==="stealth"){
+  ctx.fillRect(x+1,y-8,5,17);ctx.fillRect(x-3,y-1,13,8);
+ }else{
+  ctx.fillRect(x,y-7,6,14);ctx.fillRect(x-3,y-3,12,8);
+ }
+ ctx.fillStyle=ship.light;
+ ctx.fillRect(x+2,y-5,2,4);
+ if(ship.shape==="arrow")ctx.fillRect(x+2,y-8,2,4);
+ if(ship.shape==="stealth")ctx.fillRect(x+3,y-4,2,3);
+
+ if(player.shields>0 || phaseTimer>0){
+  ctx.strokeStyle=phaseTimer>0?"#c58bff":"#62ffad";
+  ctx.shadowBlur=phaseTimer>0?12:7;
+  ctx.shadowColor=ctx.strokeStyle;
+  ctx.strokeRect(x-8,y-10,22,22);
+  ctx.shadowBlur=0;
+ }
+}
+
+function pixelObstacle(o){
+ const x=Math.floor(o.x),y=Math.floor(o.y),s=o.size;
+ ctx.fillStyle="#7b164c";
+ ctx.fillRect(x,y,s,s);
+ ctx.fillStyle="#ff397f";
+ ctx.fillRect(x+2,y+2,s-4,s-4);
+ ctx.fillStyle="#ff9ab9";
+ ctx.fillRect(x+3,y+3,s-6,2);
+ ctx.fillStyle="#a51d5a";
+ ctx.fillRect(x+3,y+s-5,s-6,2);
+}
+
+function pixelEnergy(o){
+ const x=Math.floor(o.x),y=Math.floor(o.y);
+ const color=o.type==="gold"?"#ffd34d":o.type==="purple"?"#c58bff":"#00eaff";
+ ctx.shadowBlur=o.type==="gold"?10:5;
+ ctx.shadowColor=color;
+ ctx.fillStyle=color;
+ ctx.fillRect(x-2,y-6,5,12);
+ ctx.fillRect(x-6,y-2,13,5);
+ ctx.fillStyle="#ffffff";
+ ctx.fillRect(x,y-3,2,6);
+ ctx.shadowBlur=0;
+}
+
+function pixelSpecial(p){
+ const x=Math.floor(p.x),y=Math.floor(p.y);
+ const colors={magnet:"#ff70d8",slow:"#ffe66d",phase:"#b78cff",burst:"#ff9b42"};
+ const color=colors[p.type]||"#fff";
+ ctx.shadowBlur=9;ctx.shadowColor=color;ctx.fillStyle=color;
+ ctx.fillRect(x-6,y-6,12,12);
+ ctx.fillStyle="#160d2c";ctx.fillRect(x-3,y-3,6,6);
+ ctx.fillStyle="#fff";ctx.fillRect(x-1,y-1,2,2);
+ ctx.shadowBlur=0;
+}
+
+function pixelPower(p){
+ const x=Math.floor(p.x),y=Math.floor(p.y);
+ ctx.fillStyle="#2dba78";
+ ctx.fillRect(x-6,y-6,13,13);
+ ctx.fillStyle="#70ffb3";
+ ctx.fillRect(x-3,y-3,7,7);
+ ctx.fillStyle="#102b3b";
+ ctx.fillRect(x,y-3,2,7);
+ ctx.fillRect(x-3,y,7,2);
+}
+
+// ==================================
+// VOID REAPER BOSS SPRITE
+// ==================================
+
+function drawBoss(){
+ if(!boss)return;
+
+ const x=Math.floor(boss.x);
+ const y=Math.floor(boss.y);
+ const stage=boss.stage;
+
+ ctx.save();
+
+ if(stage===2){
+  // IRON WIDOW: armored spider with eight mechanical legs.
+  ctx.fillStyle="#160d12";
+  ctx.fillRect(x-31,y-22,62,42);
+  ctx.strokeStyle="#a9a9bd";
+  ctx.lineWidth=4;
+  for(let side of [-1,1]){
+   for(let i=0;i<4;i++){
+    const sy=y-15+i*9;
+    ctx.beginPath();
+    ctx.moveTo(x+side*18,sy);
+    ctx.lineTo(x+side*(29+i*2),sy-8);
+    ctx.lineTo(x+side*(35+i*2),sy+4);
+    ctx.stroke();
+   }
+  }
+  ctx.fillStyle="#44475d";
+  ctx.fillRect(x-23,y-18,46,31);
+  ctx.fillStyle="#858ba5";
+  ctx.fillRect(x-17,y-24,34,12);
+  ctx.fillRect(x-13,y+9,26,8);
+  ctx.shadowBlur=12;
+  ctx.shadowColor="#ff294f";
+  ctx.fillStyle="#ff294f";
+  ctx.fillRect(x-13,y-10,8,6);
+  ctx.fillRect(x+5,y-10,8,6);
+  ctx.shadowBlur=0;
+  ctx.fillStyle="#f4d8e2";
+  ctx.fillRect(x-10,y-9,2,2);
+  ctx.fillRect(x+8,y-9,2,2);
+  ctx.fillStyle="#ffb13b";
+  ctx.fillRect(x-4,y+3,8,4);
+  ctx.font="bold 8px monospace";
+  ctx.textAlign="center";
+  ctx.fillStyle="#ff6a82";
+  ctx.fillText("IRON WIDOW",x,y-39);
+ }else if(stage===3){
+  // TEMPEST CORE: unstable energy reactor with rotating lightning rays.
+  ctx.fillStyle="#061b32";
+  ctx.fillRect(x-34,y-34,68,68);
+  ctx.strokeStyle="#24e9ff";
+  ctx.lineWidth=3;
+  for(let i=0;i<8;i++){
+   const a=frame*.045+i*Math.PI/4;
+   ctx.beginPath();
+   ctx.moveTo(x+Math.cos(a)*17,y+Math.sin(a)*17);
+   ctx.lineTo(x+Math.cos(a)*34,y+Math.sin(a)*34);
+   ctx.stroke();
+  }
+  ctx.fillStyle="#126c9b";
+  ctx.fillRect(x-23,y-23,46,46);
+  ctx.fillStyle="#43f5ff";
+  ctx.fillRect(x-15,y-15,30,30);
+  ctx.fillStyle="#e9ffff";
+  ctx.fillRect(x-7,y-7,14,14);
+  ctx.shadowBlur=16;
+  ctx.shadowColor="#00eaff";
+  ctx.fillStyle="#ffffff";
+  ctx.fillRect(x-3,y-3,6,6);
+  ctx.shadowBlur=0;
+  ctx.font="bold 8px monospace";
+  ctx.textAlign="center";
+  ctx.fillStyle="#54f5ff";
+  ctx.fillText("TEMPEST CORE",x,y-42);
+ }else{
+  // VOID REAPER (stage 1) and its evolved final form (stage 4).
+  const finalForm=stage===4;
+  const aura=finalForm?"#26051f":"#16051f";
+  const horn=finalForm?"#d33c68":"#702d9c";
+  const skull=finalForm?"#3a102d":"#29123e";
+  const bone=finalForm?"#b77a9f":"#795a9e";
+  const eye=finalForm?"#ffb000":"#ff174f";
+  ctx.fillStyle=aura;
+  ctx.fillRect(x-(finalForm?43:35),y-38,finalForm?86:70,66);
+
+  ctx.fillStyle=horn;
+  ctx.fillRect(x-29,y-26,8,19);
+  ctx.fillRect(x-35,y-34,8,10);
+  ctx.fillRect(x+21,y-26,8,19);
+  ctx.fillRect(x+27,y-34,8,10);
+  if(finalForm){
+   ctx.fillRect(x-43,y-18,9,28);
+   ctx.fillRect(x+34,y-18,9,28);
+   ctx.fillRect(x-38,y-43,9,12);
+   ctx.fillRect(x+29,y-43,9,12);
+  }
+  ctx.fillStyle=finalForm?"#ff719a":"#c14bce";
+  ctx.fillRect(x-35,y-38,7,5);
+  ctx.fillRect(x+28,y-38,7,5);
+
+  ctx.fillStyle=skull;
+  ctx.fillRect(x-26,y-22,52,37);
+  ctx.fillRect(x-30,y-12,60,25);
+  ctx.fillStyle=bone;
+  ctx.fillRect(x-21,y-19,42,28);
+  ctx.fillRect(x-16,y+9,32,10);
+  ctx.fillStyle=finalForm?"#ffe0a8":"#c7a3df";
+  ctx.fillRect(x-10,y-17,20,4);
+
+  ctx.fillStyle="#14051d";
+  ctx.fillRect(x-17,y-10,14,13);
+  ctx.fillRect(x+3,y-10,14,13);
+  ctx.shadowBlur=finalForm?22:14;
+  ctx.shadowColor=eye;
+  ctx.fillStyle=eye;
+  ctx.fillRect(x-15,y-7,10,7);
+  ctx.fillRect(x+5,y-7,10,7);
+  ctx.shadowBlur=0;
+  ctx.fillStyle="#fff0d5";
+  ctx.fillRect(x-12,y-6,3,3);
+  ctx.fillRect(x+8,y-6,3,3);
+  ctx.fillStyle="#16051d";
+  ctx.fillRect(x-4,y+2,8,8);
+  ctx.fillRect(x-14,y+16,28,6);
+  ctx.fillStyle="#ffdded";
+  ctx.fillRect(x-11,y+13,4,7);
+  ctx.fillRect(x-3,y+13,4,8);
+  ctx.fillRect(x+5,y+13,4,7);
+
+  ctx.font="bold 8px monospace";
+  ctx.textAlign="center";
+  ctx.fillStyle=finalForm?"#ffb000":"#ff416d";
+  ctx.fillText(finalForm?"ABYSS OVERLORD":"VOID REAPER",x,y-(finalForm?49:44));
+ }
+
+ ctx.restore();
+}
+
+// ==================================
+// PARTICLES
+// ==================================
+
+function burst(x,y,color,count=12){
+ for(let i=0;i<count;i++){
+  particles.push({
+   x,y,
+   vx:(Math.random()-.5)*4,
+   vy:(Math.random()-.5)*4,
+   life:15+Math.random()*20,
+   size:1+Math.floor(Math.random()*3),
+   color
+  });
+ }
+}
+
+function drawParticles(){
+ particles.forEach(p=>{
+  ctx.globalAlpha=Math.max(0,p.life/35);
+  ctx.fillStyle=p.color;
+  ctx.fillRect(Math.floor(p.x),Math.floor(p.y),p.size,p.size);
+ });
+ ctx.globalAlpha=1;
+}
+
+function showToast(message){
+ $("toast").textContent=message;
+ clearTimeout(showToast.timer);
+ showToast.timer=setTimeout(()=>{$("toast").textContent=""},1000);
+}
+
+// ==================================
+// PLAYER CONTROLS
+// ==================================
+
+function bindButton(id,direction){
+ const el=$(id);
+
+ el.addEventListener("pointerdown",e=>{
+  e.preventDefault();
+  input[direction]=true;
+  el.setPointerCapture(e.pointerId);
+ });
+
+ ["pointerup","pointercancel","lostpointercapture"].forEach(event=>{
+  el.addEventListener(event,()=>{input[direction]=false});
+ });
+}
+
+bindButton("left","left");
+bindButton("right","right");
+
+canvas.addEventListener("pointerdown",e=>{
+ if(state!=="playing")return;
+ const r=canvas.getBoundingClientRect();
+ input.target=(e.clientX-r.left)/r.width*W;
+});
+
+canvas.addEventListener("pointermove",e=>{
+ if(state!=="playing")return;
+ if(e.buttons||e.pointerType==="touch"){
+  const r=canvas.getBoundingClientRect();
+  input.target=(e.clientX-r.left)/r.width*W;
+ }
+});
+
+canvas.addEventListener("pointerup",()=>{input.target=null});
+
+window.addEventListener("keydown",e=>{
+ if(e.key==="ArrowLeft"||e.key==="a")input.left=true;
+ if(e.key==="ArrowRight"||e.key==="d")input.right=true;
+ if(e.key==="Escape"||e.key==="p")togglePause();
+});
+
+window.addEventListener("keyup",e=>{
+ if(e.key==="ArrowLeft"||e.key==="a")input.left=false;
+ if(e.key==="ArrowRight"||e.key==="d")input.right=false;
+});
+
+function movePlayer(dt){
+ let direction=0;
+ if(input.left)direction--;
+ if(input.right)direction++;
+ const sensitivity=(settings.sensitivity||100)/100;
+ const accel=.48*sensitivity;
+ const maxSpeed=3.25*sensitivity;
+ if(direction!==0)player.vx=(player.vx||0)+direction*accel*dt;
+ else player.vx=(player.vx||0)*Math.pow(.84,dt);
+ if(input.target!==null){
+  const delta=input.target-player.x;
+  player.vx+=Math.sign(delta)*Math.min(.58,Math.abs(delta)*.035)*sensitivity*dt;
+ }
+ player.vx=Math.max(-maxSpeed,Math.min(maxSpeed,player.vx));
+ player.x+=player.vx*dt;
+ if(player.x<24){player.x=24;player.vx=Math.max(0,player.vx)}
+ if(player.x>156){player.x=156;player.vx=Math.min(0,player.vx)}
+}
+
+// ==================================
+// NORMAL GAMEPLAY
+// ==================================
+
+function spawnObstacle(){
+ const size=12+Math.floor(Math.random()*9);
+ obstacles.push({
+  x:24+Math.random()*132,
+  y:-size,size
+ });
+}
+
+function spawnEnergy(){
+ const roll=Math.random();
+ const type=roll>.96?"gold":roll>.76?"purple":"blue";
+ energies.push({x:24+Math.random()*132,y:-10,type});
+}
+
+function spawnSpecial(){
+ const types=["magnet","slow","phase","burst"];
+ specials.push({x:24+Math.random()*132,y:-14,type:types[Math.floor(Math.random()*types.length)]});
+}
+
+function spawnPower(){
+ powers.push({
+  x:24+Math.random()*132,y:-15
+ });
+}
+
+function hit(a,b){
+ return Math.abs(a.x-b.x)<(a.w+b.size)/2 &&
+        Math.abs(a.y-b.y)<(a.h+b.size)/2;
+}
+
+// ==================================
+// BOSS SYSTEM
+// ==================================
+
+const BOSS_NAMES=[
+ "THE VOID REAPER",
+ "IRON WIDOW",
+ "TEMPEST CORE",
+ "ABYSS OVERLORD"
+];
+
+const BOSS_DURATIONS=[18,20,23,30]; // seconds of survival per encounter
+const BOSS_GAPS=[0,55,75,120];      // seconds before the next stage appears
+
+function summonBoss(){
+ const stage=bossStage;
+ boss={
+  stage,
+  name:BOSS_NAMES[stage-1],
+  phase:"warning",
+  timer:stage===4?240:180,
+  x:90,y:48,
+  fireClock:0,
+  attack:0,
+  duration:BOSS_DURATIONS[stage-1]*60
+ };
+
+ bossBullets=[];
+ bossHitCount=0; // Track clean escape for this encounter only.
+ obstacles=[]; // Clear normal red-block obstacles as soon as a boss arrives.
+ terror=0;
+ warningFlash=0;
+ heartbeatClock=0;
+
+ showToast("WARNING: "+boss.name);
+ siren();
+}
+
+function addBossBullet(angle,speed,size=5){
+ bossBullets.push({
+  x:boss.x,y:boss.y+17,
+  vx:Math.cos(angle)*speed,
+  vy:Math.sin(angle)*speed,
+  size
+ });
+}
+
+function fireBossAttack(){
+ if(!boss)return;
+
+ const dx=player.x-boss.x;
+ const dy=player.y-boss.y;
+ const baseAngle=Math.atan2(dy,dx);
+ const stage=boss.stage;
+ const diffSpeed={easy:.82,normal:1,hard:1.16,nightmare:1.32}[settings.difficulty]||1;
+ const velocity=((2.25+stage*.28)+terror/100*(.8+stage*.22))*diffSpeed;
+
+ if(stage===1){
+  // VOID REAPER: aimed three-shot spread, widening as terror rises.
+  [-.32,0,.32].forEach(offset=>addBossBullet(baseAngle+offset,velocity,5));
+  if(terror>35){
+   [-.7,.7].forEach(offset=>addBossBullet(baseAngle+offset,velocity,4));
+  }
+ }else if(stage===2){
+  // IRON WIDOW: a dense five-shot fan with alternating side shots.
+  [-.68,-.34,0,.34,.68].forEach(offset=>addBossBullet(baseAngle+offset,velocity,5));
+  if(boss.attack%2===0){
+   addBossBullet(Math.PI*.32,velocity*.9,4);
+   addBossBullet(Math.PI*.68,velocity*.9,4);
+  }
+ }else if(stage===3){
+  // TEMPEST CORE: radial burst mixed with a player-tracking shot.
+  const count=terror>55?10:8;
+  for(let i=0;i<count;i++){
+   addBossBullet((Math.PI*2/count)*i+(boss.attack%2)*.16,velocity*.82,4);
+  }
+  [-.22,0,.22].forEach(offset=>addBossBullet(baseAngle+offset,velocity*1.12,5));
+ }else{
+  // ABYSS OVERLORD: heavy nine-lane fan plus a fast aimed spear.
+  [-.95,-.72,-.48,-.24,0,.24,.48,.72,.95].forEach(offset=>
+   addBossBullet(baseAngle+offset,velocity*.9,5)
+  );
+  addBossBullet(baseAngle,velocity*1.35,6);
+  if(boss.attack%2===0){
+   addBossBullet(baseAngle-.12,velocity*1.15,4);
+   addBossBullet(baseAngle+.12,velocity*1.15,4);
+  }
+ }
+
+ boss.attack++;
+ sound(stage===4?105:150,.1,"sawtooth",.035+stage*.004);
+}
+
+function updateBoss(dt){
+ if(!boss && bossStage<=4 && elapsed>=bossNextAt){
+  summonBoss();
+ }
+
+ if(!boss){
+  terror=0;
+  return;
+ }
+
+ // Warning phase gives a short signal before the encounter begins.
+ if(boss.phase==="warning"){
+  boss.timer-=dt;
+  warningFlash+=dt;
+
+  if(boss.timer<=0){
+   boss.phase="active";
+   boss.timer=boss.duration;
+   boss.fireClock=0;
+   showToast(boss.name+" - ESCAPE!");
+   sound(65,.8,"sawtooth",.08);
+  }
+  return;
+ }
+
+ boss.timer-=dt;
+ terror=Math.min(100,Math.max(0,100*(1-boss.timer/boss.duration)));
+
+ // Later bosses shake the screen more intensely.
+ shake=Math.max(shake,terror/100*(2.2+boss.stage*.75));
+
+ // Boss movement personalities.
+ if(boss.stage===1){
+  const movementStrength=.012+terror/100*.025;
+  boss.x+=(player.x-boss.x)*movementStrength*dt;
+ }else if(boss.stage===2){
+  boss.x=90+Math.sin(frame/34)*48;
+ }else if(boss.stage===3){
+  boss.x+=(player.x-boss.x)*(.025+terror/100*.035)*dt;
+  boss.x+=Math.sin(frame/13)*.8*dt;
+ }else{
+  boss.x+=(player.x-boss.x)*(.035+terror/100*.045)*dt;
+  boss.x+=Math.sin(frame/7)*1.25*dt;
+ }
+ boss.x=Math.max(boss.stage===4?30:35,Math.min(boss.stage===4?150:145,boss.x));
+
+ heartbeatClock+=dt;
+ const heartbeatInterval=Math.max(25,85-terror*.45-boss.stage*5);
+ if(heartbeatClock>=heartbeatInterval){
+  heartbeat();
+  heartbeatClock=0;
+ }
+
+ // Each stage attacks faster; the final boss has the shortest firing interval.
+ boss.fireClock+=dt;
+ const baseIntervals=[48,39,32,25];
+ const diffRate={easy:1.25,normal:1,hard:.86,nightmare:.72}[settings.difficulty]||1;
+ const attackInterval=Math.max(11,(baseIntervals[boss.stage-1]-terror*(boss.stage===4?.17:.12))*diffRate);
+ if(boss.fireClock>=attackInterval){
+  fireBossAttack();
+  boss.fireClock=0;
+ }
+
+ // Move and collide with projectiles. The player can only dodge or spend a shield.
+ for(let i=bossBullets.length-1;i>=0;i--){
+  const b=bossBullets[i];
+  const bulletTime=slowTimer>0?.48:1;
+  b.x+=b.vx*dt*bulletTime;
+  b.y+=b.vy*dt*bulletTime;
+
+  if(b.x<-15||b.x>195||b.y<-15||b.y>335){
+   bossBullets.splice(i,1);
+   continue;
+  }
+
+  if(Math.abs(player.x-b.x)<9&&Math.abs(player.y-b.y)<10){
+   if(phaseTimer>0){
+    burst(b.x,b.y,"#c58bff",8);
+    bossBullets.splice(i,1);
+    continue;
+   }
+   if(player.shields>0){
+    player.shields--;
+    hitFlash=5;
+    burst(b.x,b.y,"#63ffb0",16);
+    showToast("SHIELD BLOCKED HIT!");
+    sound(250,.15);
+   }else{
+    bossHitCount++;
+    if(!TEST_INFINITE_LIFE){
+     player.health=Math.max(0,player.health-25);
+     player.healDelay=180;
+    }
+    stats.hits++;
+    hitFlash=12;hitStop=3;
+    burst(player.x,player.y,"#ff526f",18);
+    showToast(TEST_INFINITE_LIFE?"TEST MODE: HIT IGNORED":"LIFE -25%");
+    shake=5;
+    vibrate([35,25,35]);
+    if(player.health<=0){
+     gameOver();
+     return;
+    }
+   }
+   bossBullets.splice(i,1);
+  }
+ }
+
+ // Survive the full encounter to unlock the next boss.
+ if(boss.timer<=0){
+  const clearedStage=boss.stage;
+  const cleanEscape=bossHitCount===0;
+  boss=null;
+  bossBullets=[];
+  terror=0;
+  stats.bosses++;
+  score+=250+clearedStage*100;
+  unlockAchievement("boss_"+clearedStage);
+  if(cleanEscape)unlockAchievement("untouchable");
+
+  if(clearedStage<4){
+   bossStage=clearedStage+1;
+   const waitSeconds=BOSS_GAPS[bossStage-1];
+   bossNextAt=elapsed+waitSeconds*60;
+   showToast("NEW LOCATION: "+LOCATION_NAMES[bossStage-1]);
+  }else{
+   bossStage=5;
+   bossNextAt=Infinity;
+   showToast("ALL FOUR BOSSES ESCAPED! +650");
+   unlockAchievement("all_bosses");
+   setTimeout(showVictory,650);
+  }
+  sound(700,.4,"sine",.06);
+  vibrate([60,40,60]);
+ }
+}
+
+// ==================================
+// BOSS BULLETS
+// ==================================
+
+function drawBossBullets(){
+ bossBullets.forEach(b=>{
+  ctx.fillStyle="#ff174f";
+  ctx.fillRect(Math.floor(b.x-2),Math.floor(b.y-2),b.size,b.size);
+
+  ctx.fillStyle="#ffd6e2";
+  ctx.fillRect(Math.floor(b.x),Math.floor(b.y),2,2);
+ });
+}
+
+// ==================================
+// WARNING EFFECT
+// ==================================
+
+function drawBossWarning(){
+ if(!boss||boss.phase!=="warning")return;
+
+ if(Math.floor(warningFlash/9)%2===0){
+  ctx.fillStyle="#ff0022";
+  ctx.globalAlpha=.16;
+  ctx.fillRect(0,0,W,H);
+  ctx.globalAlpha=1;
+ }
+ ctx.strokeStyle=warningFlash%18<9?"#ff526f":"#ffb1c2";
+ ctx.lineWidth=2;
+ ctx.strokeRect(4,4,W-8,H-8);
+
+ ctx.fillStyle="#ff234e";
+ ctx.font="bold 13px monospace";
+ ctx.textAlign="center";
+ ctx.fillText("STAGE "+boss.stage+" / 4",90,112);
+ ctx.fillText("!!! WARNING !!!",90,128);
+
+ ctx.font="8px monospace";
+ ctx.fillText(boss.name,90,143);
+ ctx.font="bold 10px monospace";
+ ctx.fillText("INCOMING IN "+Math.ceil(boss.timer/60),90,160);
+}
+
+// ==================================
+// TERROR METER
+// ==================================
+
+function drawVitalsHUD(){
+ if(TEST_INFINITE_LIFE) player.health=100;
+ const x=4,y=35,width=76,height=7;
+ ctx.textAlign="left";
+ ctx.font="bold 7px monospace";
+ ctx.fillStyle="#d9d4f5";
+ ctx.fillText("LIFE",x,y-4);
+ ctx.fillStyle="#29172f";
+ ctx.fillRect(x,y,width,7);
+ const lifeColor=player.health>60?"#55f28b":player.health>30?"#ffd34d":"#ff3d63";
+ ctx.fillStyle=lifeColor;
+ ctx.fillRect(x,y,width*Math.max(0,player.health)/100,7);
+ ctx.strokeStyle="#d5c8ff";
+ ctx.strokeRect(x,y,width,7);
+ ctx.textAlign="right";
+ ctx.fillStyle="#ffffff";
+ ctx.fillText(Math.ceil(player.health)+"%",x+width,y-4);
+ const shown=Math.min(player.shields,10);
+ ctx.fillStyle="#63ff9b";
+ for(let i=0;i<shown;i++){
+  const px=x+4+i*7,py=y+15;
+  ctx.beginPath();
+  ctx.moveTo(px,py);
+  ctx.lineTo(px+3,py+5);
+  ctx.lineTo(px-3,py+5);
+  ctx.closePath();
+  ctx.fill();
+ }
+ if(player.shields>10){
+  ctx.textAlign="left";
+  ctx.font="bold 7px monospace";
+  ctx.fillStyle="#63ff9b";
+  ctx.fillText("+"+(player.shields-10),x+76,y+20);
+ }
+}
+
+function drawTerrorHUD(){
+ if(!boss||boss.phase!=="active")return;
+
+ const x=15,y=91,width=150,height=8;
+
+ const remaining=Math.max(0,Math.ceil(boss.timer/60));
+
+ ctx.textAlign="center";
+ ctx.font="bold 8px monospace";
+ ctx.fillStyle="#ff526f";
+ ctx.fillText("STAGE "+boss.stage+" / 4  -  TERROR",90,y-7);
+
+ ctx.fillStyle="#26102d";
+ ctx.fillRect(x,y,width,height);
+
+ ctx.fillStyle=
+  terror<40?"#b43b9d":
+  terror<75?"#ff3971":"#ff102f";
+
+ ctx.fillRect(x,y,width*terror/100,height);
+
+ ctx.strokeStyle="#ff6a8d";
+ ctx.strokeRect(x,y,width,height);
+
+ ctx.fillStyle="white";
+ ctx.font="bold 11px monospace";
+ ctx.fillText("SURVIVE: "+remaining+"s",90,y+23);
+}
+
+// ==================================
+// GAME UPDATE
+// ==================================
+
+function update(dt){
+ frame+=dt;
+ elapsed+=dt;
+ hitFlash=Math.max(0,hitFlash-dt);
+ environmentClock+=dt;
+
+ const difficultySpeed={easy:.88,normal:1,hard:1.12,nightmare:1.24}[settings.difficulty]||1;
+ speed=(1+Math.min(2.8,elapsed/180))*difficultySpeed*(slowTimer>0?.68:1);
+
+ movePlayer(dt);
+
+ if(comboTime>0)comboTime-=dt;
+ else combo=0;
+ magnetTimer=Math.max(0,magnetTimer-dt);
+ slowTimer=Math.max(0,slowTimer-dt);
+ phaseTimer=Math.max(0,phaseTimer-dt);
+ scoreBoostTimer=Math.max(0,scoreBoostTimer-dt);
+
+ 
+
+ // Health regeneration begins 3 seconds after the latest unshielded hit.
+ if(player.health<100){
+  if(player.healDelay>0){
+   player.healDelay=Math.max(0,player.healDelay-dt);
+  }else{
+   player.health=Math.min(100,player.health+0.08*dt);
+  }
+ }
+
+ spawnClock+=dt;
+
+ const obstacleRate={easy:1.22,normal:1,hard:.88,nightmare:.76}[settings.difficulty]||1;
+ if(!boss && spawnClock>Math.max(13,(58-elapsed*.12-(bossStage-1)*5)*obstacleRate)){
+  spawnObstacle();
+  spawnClock=0;
+ }
+
+ energyClock+=dt;
+
+ if(energyClock>65){
+  spawnEnergy();
+  energyClock=0;
+ }
+
+ powerClock+=dt;
+
+ if(powerClock>600){
+  spawnPower();
+  powerClock=0;
+ }
+ specialClock+=dt;
+ if(specialClock>=900 && !boss){
+  spawnSpecial();
+  specialClock=0;
+ }
+
+ // Boss updates
+ updateBoss(dt);
+ if(state!=="playing")return;
+
+ // Normal obstacles
+ for(let i=obstacles.length-1;i>=0;i--){
+  const o=obstacles[i];
+  o.y+=speed*1.4*dt*(slowTimer>0?.55:1);
+
+  if(o.y>H+20){
+   obstacles.splice(i,1);
+   continue;
+  }
+
+  if(hit(player,{...o,size:o.size+5})){
+   if(phaseTimer>0){
+    burst(o.x,o.y,"#c58bff",7);
+    obstacles.splice(i,1);
+    continue;
+   }
+   if(player.shields>0){
+    player.shields--;
+    hitFlash=5;
+    burst(o.x,o.y,"#63ffb0",18);
+    showToast("SHIELD BLOCKED HIT!");
+    sound(250,.15);
+   }else{
+    if(!TEST_INFINITE_LIFE){
+     player.health=Math.max(0,player.health-25);
+     player.healDelay=180;
+    } // 3-second regeneration delay
+    stats.hits++;
+    hitFlash=12;hitStop=3;
+    burst(player.x,player.y,"#ff526f",18);
+    showToast(TEST_INFINITE_LIFE?"TEST MODE: HIT IGNORED":"LIFE -25%");
+    shake=5;
+    vibrate([35,25,35]);
+    if(player.health<=0){
+     gameOver();
+     return;
+    }
+   }
+   obstacles.splice(i,1);
+  }
+ }
+
+ // Energy
+ for(let i=energies.length-1;i>=0;i--){
+  const o=energies[i];
+  o.y+=speed*1.15*dt;
+  if(magnetTimer>0){
+   o.x+=(player.x-o.x)*Math.min(1,.045*dt);
+   o.y+=(player.y-o.y)*Math.min(1,.025*dt);
+  }
+  if(o.y>H){energies.splice(i,1);continue}
+  if(Math.hypot(player.x-o.x,player.y-o.y)<13){
+   combo++;
+   stats.energy++;
+   stats.maxCombo=Math.max(stats.maxCombo,combo);
+   comboTime=110;
+   const multiplier=combo>=20?5:combo>=10?3:combo>=5?2:1;
+   const base=o.type==="gold"?100:o.type==="purple"?35:10;
+   if(o.type==="gold"){
+    scoreBoostTimer=480;
+    showToast("GOLD CORE: 2X SCORE!");
+   }
+   const totalMultiplier=multiplier*(scoreBoostTimer>0?2:1);
+   score+=base*totalMultiplier+Math.min(combo,10)*2;
+   const color=o.type==="gold"?"#ffd34d":o.type==="purple"?"#c58bff":"#00eaff";
+   burst(o.x,o.y,color,12);
+   sound(550+combo*35,.07);
+   if(combo===5||combo===10||combo===20)showToast("COMBO x"+multiplier+"!");
+   if(stats.energy>=100)unlockAchievement("collector");
+   energies.splice(i,1);
+  }
+ }
+
+ // Shield powerups
+ for(let i=powers.length-1;i>=0;i--){
+  const p=powers[i];
+  p.y+=speed*dt;
+
+  if(p.y>H){powers.splice(i,1);continue}
+
+  if(Math.hypot(player.x-p.x,player.y-p.y)<16){
+   player.shields++;
+   burst(p.x,p.y,"#63ffb0",18);
+   showToast("SHIELD CHARGE +1");
+   sound(850,.2,"sine");
+   powers.splice(i,1);
+  }
+ }
+
+ // Temporary abilities: magnet, slow motion and phase shift.
+ for(let i=specials.length-1;i>=0;i--){
+  const p=specials[i];
+  p.y+=speed*dt;
+  if(p.y>H){specials.splice(i,1);continue}
+  if(Math.hypot(player.x-p.x,player.y-p.y)<16){
+   if(p.type==="magnet")magnetTimer=600;
+   if(p.type==="slow")slowTimer=420;
+   if(p.type==="phase")phaseTimer=360;
+   if(p.type==="burst"){
+    obstacles.forEach(o=>burst(o.x,o.y,"#ff9b42",8));
+    obstacles=[];
+   }
+   const labels={magnet:"ENERGY MAGNET 10s",slow:"SLOW MOTION 7s",phase:"PHASE SHIFT 6s",burst:"ENERGY BURST!"};
+   const colors={magnet:"#ff70d8",slow:"#ffe66d",phase:"#b78cff",burst:"#ff9b42"};
+   burst(p.x,p.y,colors[p.type],20);
+   showToast(labels[p.type]);
+   sound(900,.22,"sine",.06);vibrate(25);
+   specials.splice(i,1);
+  }
+ }
+
+ // Particles
+ for(let i=particles.length-1;i>=0;i--){
+  const p=particles[i];
+  p.x+=p.vx*dt;
+  p.y+=p.vy*dt;
+  p.life-=dt;
+
+  if(p.life<=0)particles.splice(i,1);
+ }
+
+ score+=.08*dt;
+ musicClock+=dt;
+ if(musicClock>=8){musicTick();musicClock=0}
+
+ $("score").textContent=String(Math.floor(score)).padStart(4,"0");
+ updateRankProgress();
+ const mult=combo>=20?5:combo>=10?3:combo>=5?2:1;
+ $("combo").textContent=combo>1?"COMBO x"+mult+"  ("+combo+")":"";
+
+}
+
+// ==================================
+// RENDER
+// ==================================
+
+function render(){
+ ctx.save();
+
+ if(shake>0){
+  ctx.translate(
+   (Math.random()-.5)*shake,
+   (Math.random()-.5)*shake
+  );
+  shake*=.8;
+ }
+
+ background(1);
+
+ // Terror atmosphere
+ if(boss&&boss.phase==="active"){
+  const darkness=.12+(terror/100)*.38;
+
+  ctx.fillStyle=`rgba(12,0,20,${darkness})`;
+  ctx.fillRect(0,0,W,H);
+
+  ctx.fillStyle=`rgba(120,0,25,${terror/100*.12})`;
+  ctx.fillRect(0,0,W,H);
+ }
+
+ obstacles.forEach(pixelObstacle);
+ energies.forEach(pixelEnergy);
+ powers.forEach(pixelPower);
+ specials.forEach(pixelSpecial);
+ if(boss&&boss.phase==="warning"){
+  ctx.fillStyle="rgba(255,50,90,.07)";
+  ctx.fillRect(0,0,W,H);
+ }
+ if(magnetTimer>0||slowTimer>0||phaseTimer>0||scoreBoostTimer>0){
+  ctx.textAlign="right";ctx.font="bold 6px monospace";ctx.fillStyle="#fff";
+  let yy=55;
+  if(magnetTimer>0){ctx.fillText("MAGNET "+Math.ceil(magnetTimer/60)+"s",174,yy);yy+=8}
+  if(slowTimer>0){ctx.fillText("SLOW "+Math.ceil(slowTimer/60)+"s",174,yy);yy+=8}
+  if(phaseTimer>0){ctx.fillText("PHASE "+Math.ceil(phaseTimer/60)+"s",174,yy);yy+=8}
+  if(scoreBoostTimer>0){ctx.fillText("2X SCORE "+Math.ceil(scoreBoostTimer/60)+"s",174,yy)}
+ }
+
+ drawVitalsHUD();
+ drawBoss();
+ drawBossBullets();
+ drawBossWarning();
+ drawTerrorHUD();
+
+ // Ship trail
+ player.trail.forEach((p,i)=>{
+  ctx.fillStyle=phaseTimer>0?"#c58bff":"#22dfff";
+  ctx.globalAlpha=(i+1)/player.trail.length*.48;
+  ctx.fillRect(Math.floor(p.x),Math.floor(p.y),3,3);
+ });
+
+ ctx.globalAlpha=1;
+
+ ctx.save();
+ ctx.translate(player.x,player.y);
+ ctx.rotate(Math.max(-.22,Math.min(.22,(player.vx||0)*.055)));
+ pixelShip(0,0);
+ ctx.restore();
+ drawParticles();
+ if(hitFlash>0){ctx.fillStyle=`rgba(255,45,95,${Math.min(.24,hitFlash/42)})`;ctx.fillRect(0,0,W,H)}
+
+ ctx.restore();
+}
+
+// ==================================
+// MAIN LOOP
+// ==================================
+
+function loop(time){
+ if(state!=="playing")return;
+
+ const rawDt=Math.min((time-lastTime)/16.667,2);
+ lastTime=time;
+ if(hitStop>0){
+  hitStop=Math.max(0,hitStop-rawDt);
+  render();
+  animationId=requestAnimationFrame(loop);
+  return;
+ }
+ const dt=rawDt;
+ update(dt);
+
+ if(state!=="playing")return;
+
+ render();
+
+ player.trail.push({x:player.x,y:player.y});
+ if(player.trail.length>7)player.trail.shift();
+
+ animationId=requestAnimationFrame(loop);
+}
+
+// ==================================
+// GAME STATES
+// ==================================
+
+function resetGame(){
+ score=0;
+ speed=1;
+ elapsed=0;
+ frame=0;
+ combo=0;
+ comboTime=0;
+ shake=0;
+
+ spawnClock=0;
+ energyClock=0;
+ powerClock=0;
+
+ obstacles=[];
+ energies=[];
+ powers=[];
+ specials=[];
+ particles=[];
+ stats={energy:0,bosses:0,maxCombo:0,hits:0};
+ magnetTimer=0;slowTimer=0;phaseTimer=0;scoreBoostTimer=0;musicClock=0;musicStepIndex=0;specialClock=0;
+ bossHitCount=0;
+ hitFlash=0;hitStop=0;environmentClock=0;
+
+ boss=null;
+ bossBullets=[];
+ bossStage=1;
+ bossNextAt=45*60;
+ terror=0;
+ warningFlash=0;
+ heartbeatClock=0;
+
+ player.x=90;
+ player.y=267;
+ player.vx=0;
+ player.health=100;
+ player.shields=0;
+ player.healDelay=0;
+ player.trail=[];
+
+ input.left=false;
+ input.right=false;
+ input.target=null;
+
+ $("score").textContent="0000";
+ $("combo").textContent="";
+ updateRankProgress();
+}
+
+function startGame(){
+ cancelAnimationFrame(animationId);
+
+ initAudio();
+ resetGame();
+
+ state="playing";
+
+ $("overlay").classList.remove("menuSplash");
+ $("overlay").classList.add("hidden");
+ $("controls").classList.remove("hidden");
+ $("pause").classList.remove("hidden");
+
+ sound(550,.12);
+
+ lastTime=performance.now();
+ animationId=requestAnimationFrame(loop);
+}
+
+const ACHIEVEMENTS={
+ first:{name:"FIRST FLIGHT",desc:"Complete your first run"},
+ boss_1:{name:"REAPER ESCAPED",desc:"Escape THE VOID REAPER"},
+ boss_2:{name:"IRON SURVIVOR",desc:"Escape IRON WIDOW"},
+ boss_3:{name:"STORM BREAKER",desc:"Escape TEMPEST CORE"},
+ boss_4:{name:"ABYSS WALKER",desc:"Escape ABYSS OVERLORD"},
+ all_bosses:{name:"FOUR HORSEMEN",desc:"Escape all four bosses"},
+ collector:{name:"ENERGY HUNTER",desc:"Collect 100 energy items"},
+ untouchable:{name:"UNTOUCHABLE",desc:"Escape a boss without taking damage"}
+};
+
+function unlockAchievement(id){
+ if(!ACHIEVEMENTS[id]||unlockedAchievements.includes(id))return;
+ unlockedAchievements.push(id);
+ store.set("neon_achievements",unlockedAchievements);
+ const a=ACHIEVEMENTS[id];
+ $("achievementToast").textContent="ACHIEVEMENT UNLOCKED: "+a.name;
+ $("achievementToast").classList.remove("hidden");
+ clearTimeout(unlockAchievement.timer);
+ unlockAchievement.timer=setTimeout(()=>$("achievementToast").classList.add("hidden"),2300);
+}
+
+function renderAchievements(){
+ const panel=$("achievementPanel");
+ panel.innerHTML="<b>ACHIEVEMENTS "+unlockedAchievements.length+"/"+Object.keys(ACHIEVEMENTS).length+"</b><br><br>"+
+ Object.entries(ACHIEVEMENTS).map(([id,a])=>
+  (unlockedAchievements.includes(id)?"★ ":"☆ ")+a.name+"<br><span style='color:#8279ad'>"+a.desc+"</span><br>"
+ ).join("");
+}
+
+function rankForScore(value){
+ if(value>=12000)return "S — NEON LEGEND";
+ if(value>=8000)return "A — OVERDRIVE ACE";
+ if(value>=4500)return "B — SECTOR RUNNER";
+ if(value>=2000)return "C — SURVIVOR";
+ return "D — ROOKIE PILOT";
+}
+
+function updateRankProgress(){
+ const tiers=[
+  {letter:"D",name:"ROOKIE PILOT",min:0,next:2000,nextLetter:"C"},
+  {letter:"C",name:"SURVIVOR",min:2000,next:4500,nextLetter:"B"},
+  {letter:"B",name:"SECTOR RUNNER",min:4500,next:8000,nextLetter:"A"},
+  {letter:"A",name:"OVERDRIVE ACE",min:8000,next:12000,nextLetter:"S"},
+  {letter:"S",name:"NEON LEGEND",min:12000,next:12000,nextLetter:""}
+ ];
+ const points=Math.max(0,Math.floor(score));
+ const tier=tiers.slice().reverse().find(t=>points>=t.min)||tiers[0];
+ const current=$("rankCurrent"),next=$("rankNext"),fill=$("rankFill"),hint=$("rankHint");
+ if(!current||!next||!fill||!hint)return;
+ current.textContent=tier.letter+" · "+tier.name;
+ if(!tier.nextLetter){
+  next.textContent="MAX RANK";
+  fill.style.width="100%";
+  hint.textContent=points.toLocaleString()+" POINTS · NEON LEGEND";
+ }else{
+  const progress=Math.max(0,Math.min(100,(points-tier.min)/(tier.next-tier.min)*100));
+  next.textContent="NEXT: "+tier.nextLetter+" · "+tier.next.toLocaleString();
+  fill.style.width=progress.toFixed(1)+"%";
+  hint.textContent=points.toLocaleString()+" / "+tier.next.toLocaleString()+" POINTS";
+ }
+}
+
+function resultMarkup(){
+ return '<div class="resultStats">RANK: <b>'+rankForScore(Math.floor(score))+'</b><br>SURVIVAL: '+Math.floor(elapsed/60)+'s<br>'+
+ 'ENERGY COLLECTED: '+stats.energy+'<br>'+
+ 'BOSSES ESCAPED: '+stats.bosses+'/4<br>'+
+ 'BEST COMBO: x'+stats.maxCombo+'<br>'+
+ 'HITS TAKEN: '+stats.hits+'<br>'+
+ 'ACHIEVEMENTS: '+unlockedAchievements.length+'/'+Object.keys(ACHIEVEMENTS).length+'</div>';
+}
+
+function playVictoryJingle(){
+ if(!audio||!settings.music)return;
+ const notes=[440,523.25,659.25,783.99,1046.5,987.77,1046.5,1318.51];
+ notes.forEach((n,i)=>setTimeout(()=>chipTone(n,.28,"sawtooth",.025),i*155));
+ [110,146.83,174.61,220,261.63].forEach((n,i)=>setTimeout(()=>chipTone(n,.62,"triangle",.035),i*190));
+}
+
+function showVictory(){
+ if(state!=="playing")return;
+ const finalScore=Math.floor(score);
+ if(finalScore>best){best=finalScore;store.set("neon_best",best)}
+ $("best").textContent=String(best).padStart(4,"0");
+ state="victory";
+ cancelAnimationFrame(animationId);
+ unlockAchievement("first");
+ $("heading").innerHTML="SECTOR<br>RESTORED";
+ $("message").innerHTML=
+  "<b style='color:#ffe68a;letter-spacing:1px'>MISSION COMPLETE</b><br>ALL FOUR BOSSES ESCAPED. THE FOUR SECTORS ARE SAFE AGAIN."+
+  "<div class='victoryNote'>"+
+   "<div class='noteTitle'>A NOTE ON THE JOURNEY</div>"+
+   "<p>It started with one small ship and a dangerous stretch of neon sky. You kept moving, learned to read every attack, crossed four very different worlds, and escaped four impossible bosses. From the first flight to the final escape, every collected energy cell, every shield used, and every close call brought you here. The journey is complete — the legend is yours.</p>"+
+   "<div class='milestones'><span>4 LOCATIONS</span><span>4 BOSSES</span><span>ONE SURVIVOR</span></div>"+
+  "</div>"+
+  resultMarkup()+
+  "<p class='small' style='margin-top:10px'>THANK YOU FOR PLAYING NEON RUSH: PIXEL OVERDRIVE.</p>";
+ $("play").textContent="PLAY AGAIN";
+ $("overlay").classList.remove("hidden");
+ $("controls").classList.add("hidden");
+ $("pause").classList.add("hidden");
+ sound(880,.5,"sine",.07);
+ playVictoryJingle();
+ vibrate([80,50,80,50,120]);
+}
+
+function gameOver(){
+ state="gameover";
+ cancelAnimationFrame(animationId);
+
+ const finalScore=Math.floor(score);
+ const newRecord=finalScore>best;
+
+ if(newRecord){
+  best=finalScore;
+  store.set("neon_best",best);
+ }
+
+ $("best").textContent=String(best).padStart(4,"0");
+
+ $("heading").innerHTML=newRecord?"NEW<br>RECORD!":"GAME<br>OVER";
+
+ unlockAchievement("first");
+ $("message").innerHTML=
+  "FINAL SCORE: <b>"+finalScore+"</b><br>"+
+  "BEST SCORE: <b>"+best+"</b><br>"+
+  (newRecord?"YOU BEAT YOUR RECORD!":"THE CITY IS WAITING FOR YOU.")+
+  resultMarkup();
+
+ $("play").textContent="PLAY AGAIN";
+
+ $("overlay").classList.remove("hidden");
+ $("controls").classList.add("hidden");
+ $("pause").classList.add("hidden");
+
+ sound(140,.3,"sawtooth");
+}
+
+function togglePause(){
+ if(state==="playing"){
+  state="paused";
+  cancelAnimationFrame(animationId);
+
+  $("heading").textContent="PAUSED";
+  $("message").textContent="TAKE A BREATHER. THE CITY CAN WAIT.";
+  $("play").textContent="RESUME GAME";
+
+  $("overlay").classList.remove("hidden");
+ }
+ else if(state==="paused"){
+  state="playing";
+  $("overlay").classList.add("hidden");
+
+  lastTime=performance.now();
+  animationId=requestAnimationFrame(loop);
+ }
+}
+
+function applySettings(){
+ if(!["easy","normal","hard","nightmare"].includes(settings.difficulty))settings.difficulty="normal";
+ settings.sensitivity=Math.max(60,Math.min(160,Number(settings.sensitivity)||100));
+ $("difficulty").value=settings.difficulty||"normal";
+ $("sensitivity").value=settings.sensitivity||100;
+ $("soundToggle").checked=settings.sound!==false;
+ $("musicToggle").checked=settings.music!==false;
+ $("vibrationToggle").checked=settings.vibration!==false;
+}
+function saveSettings(){
+ settings={
+  difficulty:$("difficulty").value,
+  sensitivity:Number($("sensitivity").value),
+  sound:$("soundToggle").checked,
+  music:$("musicToggle").checked,
+  vibration:$("vibrationToggle").checked
+ };
+ store.set("neon_settings",settings);
+}
+["difficulty","sensitivity","soundToggle","musicToggle","vibrationToggle"].forEach(id=>{
+ $(id).addEventListener("change",saveSettings);
+});
+
+function renderShipHangar(){
+ const grid=$("shipGrid");
+ if(!grid)return;
+ grid.innerHTML=Object.entries(SHIPS).map(([id,ship])=>
+  `<button type="button" class="shipCard ${selectedShip===id?"selected":""}" data-ship="${id}" aria-pressed="${selectedShip===id}"><span class="shipGlyph" style="color:${ship.body}">${ship.glyph}</span>${ship.name}<small>${ship.role}</small>${selectedShip===id?"<small>✓ SELECTED</small>":"<small>TAP TO SELECT</small>"}</button>`
+ ).join("");
+ $("shipSelectedNote").textContent="SELECTED: "+SHIPS[selectedShip].name;
+ grid.querySelectorAll("[data-ship]").forEach(button=>{
+  button.addEventListener("click",()=>{
+   const id=button.getAttribute("data-ship");
+   if(!SHIPS[id])return;
+   selectedShip=id;
+   store.set("neon_selected_ship",selectedShip);
+   renderShipHangar();
+   sound(620,.1,"triangle",.035);
+  });
+ });
+}
+$("hangarToggle").addEventListener("click",()=>{
+ $("hangarPanel").classList.toggle("hidden");
+ $("settingsPanel").classList.add("hidden");
+ $("achievementPanel").classList.add("hidden");
+ renderShipHangar();
+});
+
+$("settingsToggle").addEventListener("click",()=>{
+ $("settingsPanel").classList.toggle("hidden");
+ $("achievementPanel").classList.add("hidden");
+ $("hangarPanel").classList.add("hidden");
+});
+$("achievementsToggle").addEventListener("click",()=>{
+ renderAchievements();
+ $("achievementPanel").classList.toggle("hidden");
+ $("settingsPanel").classList.add("hidden");
+ $("hangarPanel").classList.add("hidden");
+});
+applySettings();
+renderAchievements();
+
+$("play").addEventListener("click",()=>{
+ if(state==="paused")togglePause();
+ else startGame();
+});
+
+$("pause").addEventListener("click",togglePause);
+
+document.addEventListener("visibilitychange",()=>{
+ if(document.hidden&&state==="playing")togglePause();
+});
+
+// ==================================
+// INITIALIZE
+// ==================================
+
+createStars();
+render();
+
+</script>
+</body>
+</html>
